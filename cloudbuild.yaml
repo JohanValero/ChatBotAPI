@@ -1,14 +1,14 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy_api', '.']
+  args: ['build', '-t', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy-api', '.']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy_api']
+  args: ['push', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy-api']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args: [
     'run',
-    'deploy', 'dummy_api',
-    '--image', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy_api',
+    'deploy', 'dummy-api',
+    '--image', 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy-api',
     '--region', 'us-central1']
 images:
-- 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy_api'
+- 'southamerica-east1-docker.pkg.dev/${PROJECT_ID}/chat-bot/dummy-api'
