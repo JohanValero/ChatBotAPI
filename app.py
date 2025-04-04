@@ -32,7 +32,7 @@ app = Flask(__name__)
 MONGODB_URI = os.getenv("MONGODB_URI", 'mongodb://localhost:27017/')
 
 # Conexión a MongoDB
-client = MongoClient(MONGODB_URI)
+client = MongoClient(MONGODB_URI, ssl=True, tls=True, tlsAllowInvalidCertificates=False)
 print("MONGODB_URI:", MONGODB_URI)
 
 db = client['jv_chatbot_mvp']
