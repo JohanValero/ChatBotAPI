@@ -8,8 +8,12 @@ import os
 
 app = Flask(__name__)
 
+MONGODB_URI = os.getenv("MONGODB_URI", 'mongodb://localhost:27017/')
+
 # Conexión a MongoDB
-client = MongoClient(os.getenv("MONGODB_URI", 'mongodb://localhost:27017/'))
+client = MongoClient(MONGODB_URI)
+print("MONGODB_URI:", MONGODB_URI)
+
 db = client['jv_chatbot_mvp']
 
 # Convertir ObjectId y datetime a string para serialización JSON
@@ -23,6 +27,7 @@ def parse_json(data):
 def validar_usuario():
     data = request.json
     cedula = data.get('cedula')
+    print("Validating cedula:", cedula)
     
     if not cedula:
         return jsonify({"error": "Se requiere cédula"}), 400
