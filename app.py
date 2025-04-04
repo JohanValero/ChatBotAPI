@@ -1,6 +1,27 @@
+import logging
+import json
+import datetime
+import os
+
+# Configure logging
+logging_dir = "logs"
+if not os.path.exists(logging_dir):
+    os.makedirs(logging_dir)
+
+# Setup basic logging configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(f"{logging_dir}/whatsapp_bot_{datetime.datetime.now().strftime('%Y%m%d')}.log"),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger("dummuy_api")
+
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
-import json
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 import datetime
@@ -25,38 +46,49 @@ def parse_json(data):
 # Endpoint para validar usuario por cédula
 @app.route('/api/usuarios/validar', methods=['POST'])
 def validar_usuario():
-    data = request.json
-    cedula = data.get('cedula')
-    print("Validating cedula:", cedula)
-    
-    if not cedula:
-        return jsonify({"error": "Se requiere cédula"}), 400
-    
-    usuario = db.users.find_one({"cedula": cedula})
-    
-    if usuario:
-        # Filtrar datos sensibles
-        usuario_data = {
-            "cedula": usuario["cedula"],
-            "nombre": usuario["nombre"],
-            "correo": usuario["correo"],
-            "telefono": usuario["telefono"],
-            "estado": usuario["estado"],
-            "segmento": usuario["segmento"]
-        }
-        return jsonify({"success": True, "usuario": parse_json(usuario_data)})
-    else:
-        return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 404
+    try:
+        data = request.json
+        logger.info(f"Validating data: {data}")
+
+        cedula = data.get('cedula')
+        logger.info(f"Validating cedula: {cedula}")
+        
+        if not cedula:
+            return jsonify({"error": "Se requiere cédula"}), 400
+        
+        usuario = db.users.find_one({"cedula": cedula})
+        
+        if usuario:
+            # Filtrar datos sensibles
+            usuario_data = {
+                "cedula": usuario["cedula"],
+                "nombre": usuario["nombre"],
+                "correo": usuario["correo"],
+                "telefono": usuario["telefono"],
+                "estado": usuario["estado"],
+                "segmento": usuario["segmento"]
+            }
+            return jsonify({"success": True, "usuario": parse_json(usuario_data)})
+        else:
+            return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 404
+    except Exception as e:
+        logger.error(f"Error en la validación de usuario: {str(e)}")
+        return jsonify({"error": "Error al validar usuario"}), 500
 
 # Endpoint para obtener datos de un usuario
 @app.route('/api/usuarios/<cedula>', methods=['GET'])
 def obtener_usuario(cedula):
-    usuario = db.users.find_one({"cedula": cedula})
+    try:
+        logger.info(f"Fetching user data for cedula: {cedula}")
+        usuario = db.users.find_one({"cedula": cedula})
     
-    if usuario:
-        return jsonify({"success": True, "usuario": parse_json(usuario)})
-    else:
-        return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 404
+        if usuario:
+            return jsonify({"success": True, "usuario": parse_json(usuario)})
+        else:
+            return jsonify({"success": False, "mensaje": "Usuario no encontrado"}), 404
+    except Exception as e:
+        logger.error(f"Error al obtener datos de usuario: {str(e)}")
+        return jsonify({"error": "Error al obtener datos de usuario"}), 500
 
 # Endpoint para obtener todos los pedidos de un usuario
 @app.route('/api/pedidos/usuario/<cedula>', methods=['GET'])
