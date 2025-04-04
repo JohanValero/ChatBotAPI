@@ -29,7 +29,7 @@ import os
 
 app = Flask(__name__)
 
-MONGODB_URI = os.getenv("MONGODB_URI", 'mongodb://localhost:27017/')
+MONGODB_URI = os.getenv("MONGODB_URI", 'mongodb://localhost:27017/', tlsAllowInvalidCertificates=True)
 
 # Conexión a MongoDB
 client = MongoClient(MONGODB_URI)
